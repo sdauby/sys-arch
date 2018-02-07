@@ -5,8 +5,7 @@ The data storage infrastructure applies versioning (e.g. track revisions, track 
 [TODO] Other cross-cutting data storage features: private / official; permissions; subscription (live data); production / testing environment segregation.
 
 1.2 Structure
-The data are organised in data groups containing data subgroups.
-When further analysed, data subgroups can have many different structures: a single table, a set of related relational database tables, several sets of related relational database tables, variously sructured sets of XML or JSON data, variously structured sets of data blobs, etc.
+The data are organised in data sets. A data set can contain other data sets. The leave nodes of this tree structure can have many different structures: a single table, a set of related relational database tables, several sets of related relational database tables, variously sructured sets of XML or JSON data, variously structured sets of data blobs, etc.
 
 1.2.1 Booking Data
 Booking data are the data involved in representing the business’s assets, liabilities and off-balance sheet items, which are typically claims and commitments governed by contractual relationships with other financial institutions. 
@@ -17,14 +16,14 @@ The counterparties may be internal or external.
 Transactions typically involve an internal counterparty entering a financial contract with an external counterparty. Some transactions are between internal counterparties.
 
 1.2.1.2 CSA Agreements
+CSA agreements have complex and varied structures. This data set aims to capture in a structured way all data relevant to the automatic management of the collateral flows stipulated by the agreement. The same data are relevant to CSA-aware valuations.
 Contains a master table of CSA agreement data (e.g. OurCounterpartyId, TheirCounterpartyId, PdfImage) keyed by CsaAgreementId.
-CSA agreements have complex and varied structures. This data subgroup aims to capture in a structured way all data relevant to the automatic management of the collateral flows stipulated by the agreement. The same data are relevant to CSA-aware valuations.
 
 1.2.1.3 Books, Lines and Instruments
 Books are containers of lines and other books.
 A line represents an asset, liability or off-balance-sheet item of the business. 
 An instrument represents the form of an asset, liability or off-balance sheet item: cash, a security, a loan, a structured note, an OTC derivative contract, etc.
-So, the data of a line consist of:
+The data of a line consist of:
 * a LineId unique identifier
 * the BookId of the book which contains the line
 * the InstrumentId of the instrument which the line consists of
@@ -45,7 +44,7 @@ LineId	BookId	InstrumentId	Quantity	OurCpId	TheirCpId
 42425	1	2		1,000,000	234	2213
 98989	1	3		10,000		234	NULL
 
-[USD cash or common stock are booked with a NULL TheirCpId. That is valid if we represent vault cash or physical shares. If such assets are in the hands of a counterparty, whether internal (treasury) or external (custodian), the corresponding lines will have slightly different instruments and non-null TheirCpIds.]
+[In this example, USD cash or common stock are booked with a NULL TheirCpId. They represent vault cash or physical shares. If such assets are in the hands of a counterparty, whether internal (treasury) or external (custodian), the corresponding lines will have slightly different instruments and non-null TheirCpIds.]
 
 Each Book has a business owner.
 The data of the Lines and Books contained in a Book refer to the BookId of the containing Book. It is never the reverse, i.e. not the data of a containing Book which refer to the LineIds and BookIds of the Lines and Books it contains. This ensures that every Line belongs to exactly one Book and every Book to at most one Book.
