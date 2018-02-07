@@ -145,15 +145,25 @@ So, this data group contains PortfolioId unique identifiers and rules for genera
 In general, analytics can be divided into line analytics and portfolio analytics. The former (e.g. MTM under perfect collateralisation) are keyed by LineId and the latter (e.g. CVA, PFE, ES) are keyed by PortfolioId.
 
 
-1.2.5 Technical Configuration Data
+1.2.5 Controls Data
+These are business data relating to the controls systems.
+
+1.2.5.1 Trading Mandate Data
+These are the data required to control that the booking data are consistent with the trading mandate, e.g. that all lines in a book belong to a pre-determined set of allowed instrument types.
+
+1.2.5.2 Markt Risk Limits
+These are the data indicating the risk limits set by the market risk team in terms of maximal risk for a given book and a given risk metric.
+
+
+1.2.6 Technical Configuration Data
 This data group contains configuration relating to the technologies used for system implementation. E.g. it may hold rules determining if a compute load is routed to an internal computation grid or to an external cloud.
 It also contains all application configuration data which do not belong with business configuration data, e.g. user-customised GUI layouts.
 
 
-1.2.6 Infrastructure Data
+1.2.7 Infrastructure Data
 Infrastructure Data are low-level data shared by the whole system.
 
-1.2.6.1 Enumerations
+1.2.7.1 Enumerations
 Enumerations are exactly like C++ scoped enums. Each enumeration defines a correspondence between integers and human-readable identifiers. The correspondence is relative to a given enumeration. All enum values must be stored as integers and interpreted to a human-readable identifier only when presenting data to a human. This enables the human-readable identifiers to be changed (and errors corrected) much more easily. This mechanism minimises the presence of free-form strings in the systems while enabling human-friendly interfaces.
 
 Example table structure: 
@@ -173,11 +183,10 @@ ExplainComponent	NewValue		3
 ExplainComponent	Residual		4
 
 
-1.2.6.2 Execution Log
+1.2.7.2 Execution Log
 Application and service subsystems log their activity in the execution log.
-Each application and service subsystem has a SubsystemId 
+The excution log may contain information such as error messages, calibration diagnostics, but not information required for the normal operation of the business.
 
 
-1.2.5 Controls Data
 
 2. Systems
