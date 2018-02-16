@@ -1,25 +1,20 @@
 1. Data
-1.1 Storage Infrastructure
-All data are stored in a common data storage infrastructure.
-The data storage infrastructure applies versioning (e.g. track revisions, track change authors, retrieve revisions by time stamp) to all data.
-[TODO] Other cross-cutting data storage features: private / official; permissions; subscription (live data); production / testing environment segregation.
 
-1.2 Structure
 The data are organised in data sets. A data set can contain other data sets. The leave nodes of this tree structure can have many different structures: a single table, a set of related relational database tables, several sets of related relational database tables, variously sructured sets of XML or JSON data, variously structured sets of data blobs, etc.
 
-1.2.1 Booking Data
+1.1 Booking Data
 Booking data are the data involved in representing the business’s assets, liabilities and off-balance sheet items, which are typically claims and commitments governed by contractual relationships with other financial institutions. 
 
-1.2.1.1 Counterparties
+1.1.1 Counterparties
 A table of counterparty data (e.g. Name, Country, Legal Entity Identifier) keyed by CounterpartyId.
 The counterparties may be internal or external.
 Transactions typically involve an internal counterparty entering a financial contract with an external counterparty. Some transactions are between internal counterparties.
 
-1.2.1.2 CSA Agreements
+1.1.2 CSA Agreements
 CSA agreements have complex and varied structures. This data set aims to capture in a structured way all data relevant to the automatic management of the collateral flows stipulated by the agreement. The same data are relevant to CSA-aware valuations.
 Contains a master table of CSA agreement data (e.g. OurCounterpartyId, TheirCounterpartyId, PdfImage) keyed by CsaAgreementId.
 
-1.2.1.3 Books, Lines and Instruments
+1.1.3 Books, Lines and Instruments
 Books are containers of lines and other books.
 A line represents an asset, liability or off-balance-sheet item of the business. 
 An instrument represents the form of an asset, liability or off-balance sheet item: cash, a security, a loan, a structured note, an OTC derivative contract, etc.
@@ -28,7 +23,7 @@ The data of a line consist of:
 * the BookId of the book which contains the line
 * the InstrumentId of the instrument which the line consists of
 * the quantity of the instrument
-* OurCounterpartyId, the identifier of the internal counterparty to which the asset, liability or off-balance-sheet item belongs [other option: make this a book-level property] 
+* OurCounterpartyId, the identifier of the internal counterparty to which the asset, liability or off-balance-sheet item belongs
 * TheirCounterpartyId, the identifier of the external counterparty on the other side of the asset, liability or off-balance-sheet item, if applicable.
 * A PDF image of the documentation / confirmation of the transaction leading to the creation of the line, if applicable.
 
@@ -44,7 +39,7 @@ LineId	BookId	InstrumentId	Quantity	OurCpId	TheirCpId
 42425	1	2		1,000,000	234	2213
 98989	1	3		10,000		234	NULL
 
-[In this example, USD cash or common stock are booked with a NULL TheirCpId. They represent vault cash or physical shares. If such assets are in the hands of a counterparty, whether internal (treasury) or external (custodian), the corresponding lines will have slightly different instruments and non-null TheirCpIds.]
+(In this example, USD cash or common stock are booked with a NULL TheirCpId. They represent vault cash or physical shares. If such assets are in the hands of a counterparty, whether internal (treasury) or external (custodian), the corresponding lines will have slightly different instruments and non-null TheirCpIds.)
 
 Each Book has a business owner.
 The data of the Lines and Books contained in a Book refer to the BookId of the containing Book. It is never the reverse, i.e. not the data of a containing Book which refer to the LineIds and BookIds of the Lines and Books it contains. This ensures that every Line belongs to exactly one Book and every Book to at most one Book.
@@ -54,7 +49,7 @@ The Instrument data can take as many forms as the business's assets, liabilities
 * an InstrumentTypeId, referring to a data set collecting and organising all the possible instrument types: the Instrument Taxonomy.
 * further data, according to a schema specified for the instrument type of the instrument; for example, ISO code for cash; ISIN for common stock; cash flow dates, index reference, fixed rate for an interest rate swap; etc.
 
-1.2.1.4 Transaction Life Cycle Data
+1.1.4 Transaction Life Cycle Data
 This data set contains data relating to all the financial events having effectively occurred in relation to a given line. 
 Primarily, every line has an inception date-time, indicating when an asset, liability or off-balance-sheet item started belonging to the internal counterparty. Because of booking delays and booking errors, the inception date-time may be different from the date-time at which the line was created.
 Likewise, every line has an optional termination date-time, indicating when the line ceases to belong to the internal counterparty. For example, if cash is transferred to another book, if an interest rate swap expires, or is terminated early by mutual agreement, if common stock is sold, if a swaption is exercised, a termination date-time will be booked against the corresponding lines.
@@ -63,32 +58,33 @@ Besides these general properties, transaction life cycle data keep track of even
 * when the contract is subject to margin mechanisms, the execution of the margin cash flows
 * the notification of decisions when the contract contains options, whether received or emitted
 * the breach of a barrier for derivatives having a barrier feature
-Events like reference index fixings, credit events, dividend declarations, are not part of the transaction life cycle data, because they exist independently of any given line. They are retrieved from the market data when needed. [An alternative architecture to consider: such events are booked against the corresponding lines by a market monitor service as they arise.]
 
-1.2.2 Market Data
+Events like reference index fixings, credit events, dividend declarations, are not part of the transaction life cycle data, because they exist independently of any given line. They are retrieved from the market data when needed. 
+
+1.2 Market Data
 This data set contains all data involved in the representation of the financial markets. The things represented by these data are inherently common to the market participants. 
 
-1.2.2.1 Market Prices
+1.2.1 Market Prices
 E.g. security prices, FX spot rates.
 
-1.2.2.2 Market Models
+1.2.2 Market Models
 E.g. interest rate curves, equity volatility surfaces.
 
-1.2.2.3 Reference Values
+1.2.3 Reference Values
 Administered benchmark indices (e.g. FX spot fixings, interest rate fixings, proprietary indices).
 Other public reference values (e.g. dividend amounts, credit event auction settlement prices).
 
-1.2.2.4 Market Events
+1.2.4 Market Events
 E.g. credit events, dividend declarations.
 
-1.2.2.5 Market Conventions
+1.2.5 Market Conventions
 E.g. day count conventions and other calculation rules associated with interest rate indices, spot day conventions of the FX market.
 
 
-1.2.3 Analytics Data
+1.3 Analytics Data
 This data set contains all data generated by the analytics systems. They give quantitative insights into the financial position of the business.
 
-1.2.3.1 Book Analytics
+1.3.1 Book Analytics
 Book analytics contains data generated by the Analytics Engine, whether line analytics (such as the MTM of an individual line, the deltas and vegas of an individual line) or portofolio analytics (such as the XVA of an individual portfolio, the deltas and vegas of the XVA of an individual portfolio), as well the same analytics subject to specified scenarios.
 
 They are organised in a table structure having these columns:
@@ -100,10 +96,10 @@ They are organised in a table structure having these columns:
 * ScenarioId and ScenarioBucket are optional. ScenarioId refers to a scenario applying to the measure and the risk metric, i.e. a specified set of changes applied to the normal input values of the analytics. The input value changes typically apply to the market data, but sometimes to business configuration data (e.g. model parameter scenario) or booking data (e.g. trade parameter scenario). Scenarios frequently define multiple scenario points. When it is the case, the scenario points are indexed by ScenarioBucket.
 * Value is the result of applying the measure, risk metric and scenario to the line or portfolio. Some special measures do not produce a single floating value (e.g. the "optimal exercise decision" measure produces a single Boolean; the "European option values" measure produces a strip of floating values). For such measures, Value is null and the actual value is stored, keyed by BookAnalyticsId, in one of the Booking Analytics Auxiliary Structures.
 
-1.2.3.2 Book Analytics Auxiliary Structures
+1.3.2 Book Analytics Auxiliary Structures
 There is one such structure for each measure producing outputs in another form than a single float value. Examples of such measures are: Optimal Exercise Decision; European Option Values (the value of each European swaption embedded in a Bermudan swaption); Expected Future Flows. The values stored in these structures are keyed by BookAnalyticsId, so they can be combined with the Book Analytics table to obtain the same meta-data (RunId, LineId/PortfolioId, MeasureId, RiskMetricId and RiskMetricBucket, ScenarioId and ScenarioBucket) as for float-value-producing measures.
 
-1.2.3.3 P/L Explains
+1.3.3 P/L Explains
 These data contain the results generated by the P/L Explain Engine. In general, the P/L Explain Engine attributes the change of a measure (e.g. MTM) for a specific line or portfolio to a number of additive components (e.g. IR order 1, IR vol order 1, IR order 2, IR vol order 2, IR Vol cross). The structure of the table is:
 * ExplainId (unique identifier)
 * RunId refers to the P/L Explain Engine run which generated the analytics. It can be used to retrieve information such as the the date-time of the initial and final measure values and the other analytics data used as input.
@@ -112,10 +108,10 @@ These data contain the results generated by the P/L Explain Engine. In general, 
 * ExplainComponentId indicates a specific explain component, e.g. IR vol order 1, or the initial or final MTM value. ExplainComponentIds are defined in the P/L Explain Configuration data.
 
 
-1.2.4 Business Configuration Data
+1.4 Business Configuration Data
 We distinguish business configuration data from technical configuration data. Both contain the specification of the free parameters of the system implementation. The former are typically relevant to end users, e.g. trading, middle office, risk. The latter are typically relevant to system implementors and maintainers, e.g. IT, quants.
 
-1.2.4.1 Measure Definitions, Risk Metric Definitions and Scenario Definitions
+1.4.1 Measure Definitions, Risk Metric Definitions and Scenario Definitions
 These data sets contain the definitions corresponding to MeasureId, RiskMetricId and ScenarioId, whose role is described in the Book Analytics section.
 Each of MeasureId, RiskMetricId and ScenarioId is a unique identifier within its data set.
 
@@ -124,40 +120,39 @@ Each measure has a name, taken from the Measure enumeration. Other data depend o
 Each RiskMetric has a name, taken from the RiskMetric enumeration, which specifies the type of risk metric, e.g. IrDelta, IrVega, EquityDelta, EquityVega, etc. Other data depend on the exact measure. For example, IrDelta has an InstrumentSet field specifying the instrument set onto which the IR curve risk is projected. Risk metric definitions do not contain calculation method indications such as: automatic differentiation/finite difference, difference size (for finite difference), etc. These belong in the model configuration data.
 
 Each Scenario has a name, taken from the Scenario enumeration, e.g. IrNormalVolShock. The data contain a specification of the scenario points and the mutations applied at each scenario point.
-[Scenario classification is an interesting topic of business configuration. The challenge is to achieve the right balance of flexibility and order. Flexibility is easy (free-form strings) but results in a messy organisation. Order is doable by reviewing and organising all existing scenarios, but a too naïve approach would not persist in time. This requires a good understanding of the business needs of big scenario consumers: trading, risk.]
 
-1.2.4.2 Model Configuration
+1.4.2 Model Configuration
 Whenever the analytics specified by a measure, a risk metric, or a scenario, require user choice of the calculation method, these choices are encapsulated in the Model Configuration data set.
 E.g. the MTM measure may require very sophisticated valuation model specifications for products like interest rate exotics (value with LMM or short rate model; use a Monte-Carlo or PDE algorithm; detailed parameterisation of the LMM or short rate model).
 Likewise, the IrDelta risk metric may require AD or FD, and different bump sizes in the case of FD, depending on the product.
 Likewise, an IR vol scenario specified in terms of normal vol changes may leave room for user parameterisation of how they are translated to the SABR alpha space.
-[Come back to this section and detail the data structures after detailing the Analytics Engine architecture.]
 
-1.2.4.3 P/L Explain Configuration
+
+1.4.3 P/L Explain Configuration
 This data set contains the definitions of the ExplainComponentIds, including in particular their names, taken from ExplainComponent enumeration, e.g. InterestRate_FirstOrder, InterestRate_InterestRateVol_SecondOrder, OriginalValue, NewValue, Residual.
 It also specifies P/L explain methodologies, in particular a selection of explain components to be included. These are used by the P/L explain engine.
 
-1.2.4.4 Portfolio Definitions
+1.4.4 Portfolio Definitions
 Portfolios are sets of lines. Books are simple examples of portfolios but one may need to group lines into portfolios using other criteria than the book the lines belong to. For example, in the context of XVA and credit exposure analytics, one may have to consider the portfolio of all trades within a netting group with a given counterparty.
 This data set contains PortfolioId unique identifiers and rules for generating the list of LineIds forming a given portfolio.
 In general, analytics can be divided into line analytics and portfolio analytics. The former (e.g. MTM under perfect collateralisation) are keyed by LineId and the latter (e.g. CVA, PFE, ES) are keyed by PortfolioId.
 
-1.2.4.5 Trading Mandate Data
+1.4.5 Trading Mandate Data
 These are the data required to control that the booking data are consistent with the trading mandate, e.g. that all lines in a book belong to a pre-determined set of allowed instrument types.
 
-1.2.4.6 Market Risk Limits
+1.4.6 Market Risk Limits
 These are the data indicating the risk limits set by the market risk team in terms of maximal risk for a given book and a given risk metric.
 
 
-1.2.5 Technical Configuration Data
+1.5 Technical Configuration Data
 This data set contains configuration relating to the technologies used for system implementation. E.g. it may hold rules determining if a compute load is routed to an internal computation grid or to an external cloud.
 It also contains all application configuration data which do not belong with business configuration data, e.g. user-customised GUI layouts.
 
 
-1.2.6 Infrastructure Data
+1.6 Infrastructure Data
 Infrastructure Data are low-level data shared by the whole system.
 
-1.2.6.1 Enumerations
+1.6.1 Enumerations
 Enumerations are exactly like C++ scoped enums. Each enumeration defines a correspondence between integers and human-readable identifiers. The correspondence is relative to a given enumeration. All enum values must be stored as integers and interpreted to a human-readable identifier only when presenting data to a human. This enables the human-readable identifiers to be changed (and errors corrected) much more easily. This mechanism minimises the presence of free-form strings in the systems while enabling human-friendly interfaces.
 
 Example table structure: 
@@ -177,7 +172,7 @@ ExplainComponent	NewValue		3
 ExplainComponent	Residual		4
 
 
-1.2.6.2 Execution Log
+1.6.2 Execution Log
 Application and service subsystems log their activity in the execution log.
 The excution log may contain information such as error messages, calibration diagnostics, but not information required for the normal operation of the business.
 
